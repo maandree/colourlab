@@ -56,12 +56,6 @@
 	    ⎛Y'⎞   ⎛  0,299      0,587    0,114 ⎞ ⎛R / 255⎞
 	    ⎜U ⎟ = ⎜−0,147313  −0,28886   0,436 ⎟ ⎜G / 255⎟
 	    ⎝V ⎠   ⎝  0,615    −0,51499  −1.0001⎠ ⎝B / 255⎠
-
-            Y'UV to sRGB
-	    
-	    ⎛R⎞       ⎛1      0      1,13973⎞ ⎛Y'⎞
-	    ⎜G⎟ = 255 ⎜1  −0,39465  −0,58060⎟ ⎜U ⎟
-	    ⎝B⎠       ⎝1   2,03211      0   ⎠ ⎝V ⎠
 	    
 	    sRGB to YDbDr
 	    
@@ -69,23 +63,11 @@
 	    ⎜Db⎟ = ⎜−0,450  −0,883  1,333⎟ ⎜G / 255⎟
 	    ⎝Dr⎠   ⎝−1,333   1,116  0,217⎠ ⎝B / 255⎠
 	    
-	    YDbDr to sRGB
-	    
-	    ⎛R⎞       ⎛1   0,00002303716148   −0.525912630661865⎞ ⎛Y ⎞
-	    ⎜G⎟ = 255 ⎜1  −0,129132898890509   0,267899328207599⎟ ⎜Db⎟
-	    ⎝B⎠       ⎝1   0,64679059978955   −0,000079202543533⎠ ⎝Dr⎠
-	    
 	    sRGB to YIQ
 	    
 	    ⎛Y⎞   ⎛ 0,299      0,587      0,114  ⎞ ⎛R / 255⎞
 	    ⎜I⎟ = ⎜0,959716  −0,274453  −0,321263⎟ ⎜G / 255⎟
 	    ⎝Q⎠   ⎝0,211456  −0,522591  0,311135 ⎠ ⎝B / 255⎠
-	    
-	    YIQ to sRGB
-	    
-	    ⎛R⎞       ⎛1   0,9563   0,6210⎞ ⎛Y⎞
-	    ⎜G⎟ = 255 ⎜1  −0,2721  −0,6474⎟ ⎜I⎟
-	    ⎝B⎠       ⎝1  −1,1070   1,7046⎠ ⎝Q⎠
 	    
 	    Y'PbPr to Y'CbCr
 	    
@@ -101,11 +83,23 @@
 	    ⎜Pb⎟ = ⎜−0,168736  −0,331264     0,5   ⎟ ⎜G / 255⎟
 	    ⎝Pr⎠   ⎝   0,5     −0,418688  −0,081312⎠ ⎝B / 255⎠
 	    
-	    sRGB to Y'PbPr
+	    sRGB to CIEXYZ
 	    
-	    ⎛R⎞       ⎛1  −0,0000012195   1,4019995887⎞ ⎛Y'⎞
-	    ⎜G⎟ = 255 ⎜1  −0,3441356779  −0,7141361556⎟ ⎜Pb⎟
-	    ⎝B⎠       ⎝1   1,7720000661   0,0000004063⎠ ⎝Pr⎠
+	    ⎛X⎞      1    ⎛ 0,49     0,31     0,20  ⎞ ⎛R / 255⎞
+	    ⎜Y⎟ = ─────── ⎜0,17697  0,81240  0,01063⎟ ⎜G / 255⎟
+	    ⎝Z⎠   0,17697 ⎝ 0.00     0.01     0.99  ⎠ ⎝B / 255⎠
+	    
+	    CIEXYZ to CIExyY
+	    
+	    x = X/(X + Y + Z)
+	    y = Y/(X + Y + Z)
+	    Y = Y
+	    
+	    CIEXYZ to CIExyY
+	    
+	    X = Yx/y
+	    Y = Y
+	    Z = Y(1 − x − y)/y
  */
 
 
@@ -125,26 +119,6 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static final int[][] elementary = {{205, 101, 108}, {164, 110, 176}, { 36, 149, 190}, {  0, 169, 159},
 					       { 50, 166, 121}, {156, 173,  81}, {204, 173,  71}, {218, 128,  77}};
-    
-    /**
-     * The intensity of some empirical pure grey colours
-     */
-    private static final double[] greysW = { .10, .20, .30, .40, .50, .60, .70, .80, .90, .95, .97 };
-    
-    /**
-     * The standard RGB red value of the empirical pure grey colours
-     */
-    private static final double[] greysR = { 25., 65.72, 94.38, 116.66, 136.1, 155.2, 175.68, 198.72, 225, 237, 243 };
-    
-    /**
-     * The standard RGB green value of the empirical pure grey colours
-     */
-    private static final double[] greysG = greysR;
-    
-    /**
-     * The standard RGB blue value of the empirical pure grey colours
-     */
-    private static final double[] greysB = greysR;
     
     
     
@@ -195,21 +169,6 @@ public class Colour //TRY TO KEEP this class optimised for speed
     
     
     // Cache variables
-    
-    /**
-     * Linear RGB red value coefficients for pure greys
-     */
-    private static double[] greyRk = null;
-    
-    /**
-     * Linear RGB green value coefficients for pure greys
-     */
-    private static double[] greyGk = null;
-    
-    /**
-     * Linear RGB blue value coefficients for pure greys
-     */
-    private static double[] greyBk = null;
     
     /**
      * The luminosity of the created colour
@@ -365,44 +324,9 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static double[] calculateLinearGrey(final double whiteness)
     {
-	final int n = greysW.length;
-	if (greyRk == null)
-	{
-	    final double[][] x = new double[n][n];
-	    for (int i = 0; i < n; i++)
-	    {
-		double e = 1, de = greysW[i];
-		for (int j = 0; j < n; j++)
-		{
-		    x[i][j] = e;
-		    e *= de;
-		}
-	    }
-	    
-	    final double[] gr = new double[n], gg = new double[n], gb = new double[n];
-	    for (int i = 0; i < n; i++)
-	    {
-		final double[] rgb = toLinear(greysR[i], greysG[i], greysB[i]);
-		gr[i] = rgb[0];
-		gg[i] = rgb[1];
-		gb[i] = rgb[2];
-	    }
-	    
-	    greyRk = eliminate(x, gr);
-	    greyGk = eliminate(x, gg);
-	    greyBk = eliminate(x, gb);
-	}
-	
-	double r = 0, g = 0, b = 0, e = 1;
-	for (int i = 0; i < n; i++)
-	{
-	    r += greyRk[i] * e;
-	    g += greyBk[i] * e;
-	    b += greyGk[i] * e;
-	    e *= whiteness;
-	}
-	
-	return new double[] { r, g, b };
+	double g = Math.pow(whiteness, 1. / 3.);
+	g = g / (1. + 1. / 9.) + 0.1;
+	return new double[] { g, g, g };
     }
     
     /**

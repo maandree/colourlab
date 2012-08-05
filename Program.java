@@ -47,7 +47,7 @@ public class Program extends JFrame
 		    if (2. * ł + s > 1.)
 			continue;
 		    
-		    final Colour colour = new Colour(l, s, Colour.toNaturalHue(h));
+		    final Colour colour = new Colour(l, s, h);
 		    final int[] rgb = colour.getStandardRGB();
 		    int r = rgb[0],
 			g = rgb[1],
@@ -106,7 +106,7 @@ public class Program extends JFrame
     
     
     
-    private static BufferedImage[] imgs = new BufferedImage[1 + 4];
+    private static BufferedImage[] imgs = new BufferedImage[1 + 20];
     
     static int lum = 0;
     
