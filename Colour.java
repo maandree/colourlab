@@ -31,7 +31,21 @@
 	   
 	   
    Comparison:  Munsell:
-                Adds purple as a prinicpal hue to make the hue wheel perceptually uniform
+                Adds purple as a prinicpal hue to make the hue wheel perceptually uniform.
+		Munsell colour model is damn near perfect and should be used if perceptually
+		uniformity in hue, that is that the distance between two angles are
+		proportional to the distance between those two colours, is a priority.
+		
+		NCS:
+		NCS have many fluctuation in is perceptually linearity, or even smoothness;
+		and it contains only 1950 standardised colours.
+		Our colour model is a cleanroom improvement on NCS, however with a fix gloss
+		that of a CRT screen.
+		
+		RGB:
+		RGB colour spaces are designed to make it easy to fool the eye, while perceptually
+		colour spaces are designed to make it easy to descibe the colour. RGB is hence much
+		more suitable for machine, rather than humans.
 
  */
 
@@ -107,7 +121,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
     
     
     /**
-     * Empirical elementary colours: (yellow, yellow–red, red, red–blue, blue, blue–green, green, green–yellow) at 30 % white and 50 % chromacity.
+     * Empirical elementary colours: (red, red–blue, blue, blue–green, green, green–yellow, yellow, yellow–red) at 55 % luminosity and 50 % chromacity.
      */
     private static final int[][] elementary = {{205, 101, 108}, {164, 110, 176}, { 36, 149, 190}, {  0, 169, 159},
 					       { 50, 166, 121}, {156, 173,  81}, {204, 173,  71}, {218, 128,  77}};
@@ -239,10 +253,47 @@ public class Colour //TRY TO KEEP this class optimised for speed
     private final double saturation;
     
     /**
-     * The colour's hue in [0, 400[ gon: 0 gon = 100 % yellow; 100 gon = 100 % red; 200 gon = 100 % blue; 300 gon = 100 % green
+     * The colour's hue in [0, 400[ gon: 0 gon = 100 % red; 100 gon = 100 % blue; 200 gon = 100 % green; 300 gon = 100 % yellow
      */
     private final double hue;
     
+    
+    
+    /**
+     * Converts a perceptually uniform hue (red, lilac, blue, green, yellow) to a perceptually natural hue (red  blue, green, yellow)
+     * 
+     * @param   hue  Perceptually uniform hue
+     * @return       Perceptually natural hue
+     */
+    public static double toNaturalHue(final double hue)
+    {
+	double h = hue;
+	while (h >= 400.)  h -= 400.;
+	while (h < 0.)     h += 400.;
+	h = h >= 400. ? 0. : h;
+	
+	if (h < 160.)
+	    return h / 1.6;
+	return (h - 160.) / 0.8 + 100.;
+    }
+    
+    /**
+     * Converts a perceptually natural hue (red  blue, green, yellow) to a perceptually uniform hue (red, lilac, blue, green, yellow)
+     * 
+     * @param   hue  Perceptually natural hue
+     * @return       Perceptually uniform hue
+     */
+    public static double toUniformHue(final double hue)
+    {
+	double h = hue;
+	while (h >= 400.)  h -= 400.;
+	while (h < 0.)     h += 400.;
+	h = h >= 400. ? 0. : h;
+	
+	if (h < 100)
+	    return h * 1.6;
+	return (h - 100.) * 0.8 + 160.;
+    }
     
     
     /**
@@ -250,7 +301,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * 
      * @param   white  The colour's whiteness [0, 1]
      * @param   sat    The colour's saturation [0, 1]: the amount of colour, distance from grey
-     * @param   hue    The colour's hue in [0, 400[ gon: 0 gon = 100 % yellow; 100 gon = 100 % red; 200 gon = 100 % blue; 300 gon = 100 % green
+     * @param   hue    The colour's hue in [0, 400[ gon: 0 gon = 100 % red; 100 gon = 100 % blue; 200 gon = 100 % green; 300 gon = 100 % yellow
      * @return         The colour with the given values
      */
     public Colour usingWSH(final double white, final double sat, final double hue)
@@ -265,7 +316,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * 
      * @param   black  The colour's blackness [0, 1]
      * @param   sat    The colour's saturation [0, 1]: the amount of colour, distance from grey
-     * @param   hue    The colour's hue in [0, 400[ gon: 0 gon = 100 % yellow; 100 gon = 100 % red; 200 gon = 100 % blue; 300 gon = 100 % green
+     * @param   hue    The colour's hue in [0, 400[ gon: 0 gon = 100 % red; 100 gon = 100 % blue; 200 gon = 100 % green; 300 gon = 100 % yellow
      * @return         The colour with the given values
      */
     public Colour usingBSH(final double black, final double sat, final double hue)
@@ -280,7 +331,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * 
      * @param   lum  The colour's luminosity [0, 1]
      * @param   sat  The colour's saturation [0, 1]: the amount of colour, distance from grey
-     * @param   hue  The colour's hue in [0, 400[ gon: 0 gon = 100 % yellow; 100 gon = 100 % red; 200 gon = 100 % blue; 300 gon = 100 % green
+     * @param   hue  The colour's hue in [0, 400[ gon: 0 gon = 100 % red; 100 gon = 100 % blue; 200 gon = 100 % green; 300 gon = 100 % yellow
      * @return       The colour with the given values
      */
     public Colour usingLSH(final double lum, final double sat, final double hue)
@@ -295,7 +346,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * 
      * @param   black  The colour's blackness [0, 1]
      * @param   white  The colour's whiteness [0, 1]
-     * @param   hue    The colour's hue in [0, 400[ gon: 0 gon = 100 % yellow; 100 gon = 100 % red; 200 gon = 100 % blue; 300 gon = 100 % green
+     * @param   hue    The colour's hue in [0, 400[ gon: 0 gon = 100 % red; 100 gon = 100 % blue; 200 gon = 100 % green; 300 gon = 100 % yellow
      * @return         The colour with the given values
      */
     public Colour usingBWH(final double black, final double white, final double hue)
@@ -574,7 +625,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
     
     
     /**
-     * Gets the colour's hun in gon: 0 gon = 100 % yellow; 100 gon = 100 % red; 200 gon = 100 % blue; 300 gon = 100 % green
+     * Gets the colour's hun in gon: 0 gon = 100 % red; 100 gon = 100 % blue; 200 gon = 100 % green; 300 gon = 100 % yellow
      * 
      * @return  The colour's hue in [0, 400[ gon
      */

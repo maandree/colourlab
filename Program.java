@@ -41,13 +41,13 @@ public class Program extends JFrame
 		    
 		    final double l = il / (double)ln,
 			         s = Math.sqrt(fy * fy + fx * fx),
-		                 h = Math.atan2(y, x) * 200. / Math.PI;
+			         h = ((Math.atan2(y, x) * 200. / Math.PI) + 100.) % 400.;
 		    
 		    final double ł = (l - .5 < 0.) ? (.5 - l) : (l - .5);
 		    if (2. * ł + s > 1.)
 			continue;
 		    
-		    final Colour colour = new Colour(l, s, h);
+		    final Colour colour = new Colour(l, s, Colour.toNaturalHue(h));
 		    final int[] rgb = colour.getStandardRGB();
 		    int r = rgb[0],
 			g = rgb[1],
@@ -106,7 +106,7 @@ public class Program extends JFrame
     
     
     
-    private static BufferedImage[] imgs = new BufferedImage[1 + 300];
+    private static BufferedImage[] imgs = new BufferedImage[1 + 4];
     
     static int lum = 0;
     
