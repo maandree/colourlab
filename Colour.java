@@ -113,12 +113,32 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static final int DEGREE = 4;
     
+    /**
+     * Empirical elementary colour luminosity
+     */
+    private static final double LUM = 0.55;
     
     /**
-     * Empirical elementary colours: (red, red–blue, blue, blue–green, green, green–yellow, yellow, yellow–red) at 55 % luminosity and 50 % chromacity.
+     * Empirical elementary colour saturation
+     */
+    private static final double SAT = 0.50;
+    
+    
+    /**
+     * Empirical elementary colours: (red, red–blue, blue, blue–green, green, green–yellow, yellow, yellow–red) at {@link #LUM} luminosity and {@link #SAT} % saturation.
      */
     private static final int[][] elementary = {{205, 101, 108}, {164, 110, 176}, { 36, 149, 190}, {  0, 169, 159},
-					       { 50, 166, 121}, {156, 173,  81}, {204, 173,  71}, {218, 128,  77}};
+                                               { 50, 166, 121}, {156, 173,  81}, {204, 173,  71}, {218, 128,  77}};
+    
+    ///**
+    // * The intensity of some empirical pure grey colours
+    // */
+    //private static final double[] greysW = { 0, .10, .20, .30, .40, .50, .60, .70, .80, .90, .95, .97, 1 };
+     
+    ///**
+    // * The standard RGB value of the empirical pure grey colours
+    //*/
+    //private static final double[] greysV = { 0, 25, 65.72, 94.38, 116.66, 136.1, 155.2, 175.68, 198.72, 225, 237, 243, 255 };
     
     
     
@@ -134,32 +154,33 @@ public class Colour //TRY TO KEEP this class optimised for speed
     public Colour(final double lum, final double sat, final double hue)
     {
 	this.saturation = sat;
+	this.luminosity = lum;
 	
 	double h = hue;
 	while (h >= 400.)  h -= 400.;
 	while (h < 0.)     h += 400.;
 	this.hue = h >= 400. ? 0. : h;
 	
-	final double[] m = ((lastLum == (this.luminosity = lum)) && (lastGrey != null)) ? lastGrey
-	                   : (lastGrey = calculateLinearGrey(lastLum = lum));
-	
-	final int[][] fixed = new int[8][3];
+	int[][] fixed = new int[8][3];
 	for (int i = 0; i < 8; i++)
 	{
-	    final double[] e = toLinear(elementary[i][0], elementary[i][1], elementary[i][2]);
+	    double[] e = toLinear(elementary[i][0], elementary[i][1], elementary[i][2]);
+	    for (int j = 0; j < 3; j++)
+	    {
+		double x = calculatePerception(e[j]);
+		
+		x = x / LUM * 0.5;
+		x = (x - 0.5 * (1. - SAT)) / SAT;
+		x = x * sat + 0.5 * (1. - sat);
+		x = x / 0.5 * lum;
+		
+		e[j] = calculateIntensity(x);
+	    }
 	    
-	    final double rk = 2. * (e[0] - m[0]);
-	    final double gk = 2. * (e[1] - m[1]);
-	    final double bk = 2. * (e[2] - m[2]);
-	    
-	    double r = m[0] + rk * sat;
-	    double g = m[1] + gk * sat;
-	    double b = m[2] + bk * sat;
-	    
-	    fixed[i] = toStandard(r, g, b);
+	    fixed[i] = toStandard(e[0], e[1], e[2]);
 	}
 	
-	final int[] srgb = hueToColour(hue, fixed);
+	int[] srgb = hueToColour(hue, fixed);
 	
 	this.sRgb = srgb[0];
 	this.srGb = srgb[1];
@@ -179,6 +200,16 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * The zero chromacity corresponding colour, encoded in linear RGB, to the created colour
      */
     private static double[] lastGrey = null;
+    
+    ///**
+    // * Linear RGB value coefficients for pure greys
+    // */
+    //private static double[] greyK = null;
+    
+    ///**
+    // * Pure grey coefficients for linear RGB values
+    // */
+    //private static double[] greyI = null;
     
     
     // Display colour variables
@@ -324,10 +355,88 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static double[] calculateLinearGrey(final double whiteness)
     {
-	double g = Math.pow(whiteness, 1. / 3.);
-	g = g / (1. + 1. / 9.) + 0.1;
+	double g = calculateIntensity(whiteness);
 	return new double[] { g, g, g };
     }
+    
+    /**
+     * Calculates the linear intensity from the linear perception
+     * 
+     * @param   perception  The linear perception
+     * @return              The linear intensity
+     */
+    private static double calculateIntensity(final double perception)
+    {
+	/** /
+	int n = greysW.length;
+	if (greyK == null)
+	{
+	    double[][] x = new double[n][n];
+	    double[] g = new double[n];
+	    
+	    for (int i = 0; i < n; i++)
+	    {
+		g[i] = toLinear(greysV[i]);
+		double e = 1., de = greysW[i];;
+		for (int j = 0; j < n; j++)
+		{
+		    x[i][j] = e;
+		    e *= de;
+		}
+	    }
+	    
+	    greyK = eliminate(x, g);
+	}
+	double rc = 0, x = 1;
+	for (int i = 0; i < n; i++)
+	{
+	    rc += greyK[i] * x;
+	    x *= perception;
+	}
+	return rc;
+	/**/
+	
+	return Math.pow(perception, 1. / 2.);
+    }
+    
+    /**
+     * Calculates the linear perception from the linear intensity
+     * 
+     * @param   intensity  The linear intensity
+     * @return             The linear perception
+     */
+    private static double calculatePerception(final double intensity)
+    {
+        /** /
+	int n = greysV.length;
+	if (greyI == null)
+	{
+	    double[][] x = new double[n][n];
+	    
+	    for (int i = 0; i < n; i++)
+	    {
+		double e = 1, de = toLinear(greysV[i]);
+		for (int j = 0; j < n; j++)
+		{
+		    x[i][j] = e;
+		    e *= de;
+		}
+	    }
+	    
+	    greyI = eliminate(x, greysW);
+	}
+	double rc = 0, x = 1;
+	for (int i = 0; i < n; i++)
+	{
+	    rc += greyI[i] * x;
+	    x *= intensity;
+	}
+	return rc;
+	/**/
+	
+	return Math.pow(intensity, 2.);
+    }
+    
     
     /**
      * Interpolates colour with a hue, using fixed colours evenly distributed in hue starting at 0
@@ -447,7 +556,6 @@ public class Colour //TRY TO KEEP this class optimised for speed
 	        };
     }
     
-    
     /**
      * Converts sRGB [0, 255] to linear RGB [0, 1]
      * 
@@ -466,6 +574,17 @@ public class Colour //TRY TO KEEP this class optimised for speed
     }
     
     /**
+     * Converts a sRGB pigment value [0, 255] to linear RGB [0, 1]
+     * 
+     * @param   i  The pigment intensity
+     * @return     Linear RGB value
+     */
+    private static double toLinear(final double i)
+    {
+        return Math.pow(i / 255., 0.439764585);
+    }
+    
+    /**
      * Converts linear RGB [0, 1] to sRGB [0, 255]
      * 
      * @param   r  The red   intensity
@@ -480,6 +599,17 @@ public class Colour //TRY TO KEEP this class optimised for speed
 		    (int)(0.5 + 255. * Math.pow(g, 2.273943909)),
 		    (int)(0.5 + 255. * Math.pow(b, 2.273943909))
 		};
+    }
+    
+    /**
+     * Converts a linear RGB balue [0, 1] to sRGB [0, 255]
+     * 
+     * @param   i  The pigment intensity
+     * @return     sRGB value
+     */
+    private static int toStandard(final double i)
+    {
+	return (int)(0.5 + 255. * Math.pow(i, 2.273943909));
     }
     
     /**

@@ -24,11 +24,30 @@ public class Program extends JFrame
 	for (int il = 0, ln = imgs.length - 1; il <= ln; il++)
 	{
 	    System.err.println("At image " + il);
-	    final BufferedImage img = imgs[il] = new BufferedImage(401, 401, BufferedImage.TYPE_INT_ARGB);
+	    final BufferedImage img = imgs[il] = new BufferedImage(451, 451, BufferedImage.TYPE_INT_ARGB);
 	    final Graphics2D gg = img.createGraphics();
 	    
-	    gg.setColor(Color.WHITE);
-	    gg.fillRect(0, 0, 401, 401);
+	    for (int x = 0; x <= 450; x++)
+	    {
+		final Colour colour = new Colour(x / 450., 0., 0.);
+		final int[] rgb = colour.getStandardRGB();
+		int r = rgb[0],
+		    g = rgb[1],
+		    b = rgb[2];
+		
+		if ((r > 255) || (g > 255) || (b > 255) || (r < 0) || (g < 0) || (b < 0))
+		{
+		    r = r > 255 ? 255 : r < 0 ? 0 : r;
+		    g = g > 255 ? 255 : g < 0 ? 0 : g;
+		    b = b > 255 ? 255 : b < 0 ? 0 : b;
+		    r = 255 - r;
+		    g = 255 - g;
+		    b = 255 - b;
+		}
+		
+		gg.setColor(new Color(r, g, b));
+		gg.drawLine(x, 0, x, 450);
+	    }
 	    
 	    for (int y = -200; y <= 200; y++)
 		for (int x = -200; x <= 200; x++)
@@ -64,7 +83,7 @@ public class Program extends JFrame
 		    }
 		    
 		    gg.setColor(new Color(r, g, b));
-		    gg.fillRect(200 + x, 200 + y, 1, 1);
+		    gg.fillRect(225 + x, 225 + y, 1, 1);
 		}
 	}
 	
@@ -106,7 +125,7 @@ public class Program extends JFrame
     
     
     
-    private static BufferedImage[] imgs = new BufferedImage[1 + 20];
+    private static BufferedImage[] imgs = new BufferedImage[1 + 200];
     
     static int lum = 0;
     
@@ -116,7 +135,7 @@ public class Program extends JFrame
     public void paint(final Graphics gp)
     {
 	final Insets in = this.getInsets();
-	gp.drawImage(imgs[lum], 25 + in.left, 25 + in.top, null);
+	gp.drawImage(imgs[lum], in.left, in.top, null);
     }
     
 }
