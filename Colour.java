@@ -51,55 +51,142 @@
 
 
 /*
-            sRGB to Y'UV
+            sRGB [0:255] to Y'UV
 	    
-	    ⎛Y'⎞   ⎛  0,299      0,587    0,114 ⎞ ⎛R / 255⎞
-	    ⎜U ⎟ = ⎜−0,147313  −0,28886   0,436 ⎟ ⎜G / 255⎟
-	    ⎝V ⎠   ⎝  0,615    −0,51499  −1.0001⎠ ⎝B / 255⎠
+	        ⎛Y'⎞   ⎛  0,299      0,587    0,114 ⎞ ⎛R / 255⎞
+	        ⎜U ⎟ = ⎜−0,147313  −0,28886   0,436 ⎟ ⎜G / 255⎟
+	        ⎝V ⎠   ⎝  0,615    −0,51499  −1.0001⎠ ⎝B / 255⎠
 	    
-	    sRGB to YDbDr
+	    sRGB [0:255] to YDbDr
 	    
-	    ⎛Y ⎞   ⎛ 0,299   0,587  0,114⎞ ⎛R / 255⎞
-	    ⎜Db⎟ = ⎜−0,450  −0,883  1,333⎟ ⎜G / 255⎟
-	    ⎝Dr⎠   ⎝−1,333   1,116  0,217⎠ ⎝B / 255⎠
+	        ⎛Y ⎞   ⎛ 0,299   0,587  0,114⎞ ⎛R / 255⎞
+	        ⎜Db⎟ = ⎜−0,450  −0,883  1,333⎟ ⎜G / 255⎟
+	        ⎝Dr⎠   ⎝−1,333   1,116  0,217⎠ ⎝B / 255⎠
 	    
-	    sRGB to YIQ
+	    sRGB [0:255] to YIQ
 	    
-	    ⎛Y⎞   ⎛ 0,299      0,587      0,114  ⎞ ⎛R / 255⎞
-	    ⎜I⎟ = ⎜0,959716  −0,274453  −0,321263⎟ ⎜G / 255⎟
-	    ⎝Q⎠   ⎝0,211456  −0,522591  0,311135 ⎠ ⎝B / 255⎠
+	        ⎛Y⎞   ⎛ 0,299      0,587      0,114  ⎞ ⎛R / 255⎞
+	        ⎜I⎟ = ⎜0,959716  −0,274453  −0,321263⎟ ⎜G / 255⎟
+	        ⎝Q⎠   ⎝0,211456  −0,522591  0,311135 ⎠ ⎝B / 255⎠
 	    
-	    Y'PbPr to Y'CbCr
+	    Y'PbPr to Y'CbCr [0:255]
 	    
-	    (Y', Cb, Cr) = (16, 128, 128) + (219, 224, 224) ∗ (Y', Pb, Pr)
+	        (Y', Cb, Cr) = (16, 128, 128) + (219, 224, 224) ∗ (Y', Pb, Pr)
 	    
-	    Y'CbCr to Y'PbPr
+	    Y'CbCr [0:255] to Y'PbPr
 	    
-	    (Y', Pb, Pr) = [(Y', Cb, Cr) − (16, 128, 128)] ÷ (219, 224, 224)
+	        (Y', Pb, Pr) = [(Y', Cb, Cr) − (16, 128, 128)] ÷ (219, 224, 224)
 	    
-	    sRGB to Y'PbPr
+	    sRGB [0:255] to Y'PbPr
 	    
-	    ⎛Y'⎞   ⎛  0,299      0,587      0,114  ⎞ ⎛R / 255⎞
-	    ⎜Pb⎟ = ⎜−0,168736  −0,331264     0,5   ⎟ ⎜G / 255⎟
-	    ⎝Pr⎠   ⎝   0,5     −0,418688  −0,081312⎠ ⎝B / 255⎠
+	        ⎛Y'⎞   ⎛  0,299      0,587      0,114  ⎞ ⎛R / 255⎞
+	        ⎜Pb⎟ = ⎜−0,168736  −0,331264     0,5   ⎟ ⎜G / 255⎟
+	        ⎝Pr⎠   ⎝   0,5     −0,418688  −0,081312⎠ ⎝B / 255⎠
 	    
-	    sRGB to CIEXYZ
+	    sRGB [0:255] to CIEXYZ
 	    
-	    ⎛X⎞      1    ⎛ 0,49     0,31     0,20  ⎞ ⎛R / 255⎞
-	    ⎜Y⎟ = ─────── ⎜0,17697  0,81240  0,01063⎟ ⎜G / 255⎟
-	    ⎝Z⎠   0,17697 ⎝ 0.00     0.01     0.99  ⎠ ⎝B / 255⎠
-	    
-	    CIEXYZ to CIExyY
-	    
-	    x = X/(X + Y + Z)
-	    y = Y/(X + Y + Z)
-	    Y = Y
+	        ⎛X⎞      1    ⎛ 0,49     0,31     0,20  ⎞ ⎛R / 255⎞
+	        ⎜Y⎟ = ─────── ⎜0,17697  0,81240  0,01063⎟ ⎜G / 255⎟
+	        ⎝Z⎠   0,17697 ⎝ 0.00     0.01     0.99  ⎠ ⎝B / 255⎠
 	    
 	    CIEXYZ to CIExyY
 	    
-	    X = Yx/y
-	    Y = Y
-	    Z = Y(1 − x − y)/y
+	        x = X/(X + Y + Z)
+	        y = Y/(X + Y + Z)
+	        Y = Y
+	    
+	    CIEXYZ to CIExyY
+	    
+	       X = Yx/y
+	       Y = Y
+	       Z = Y(1 − x − y)/y
+	    
+	    HSV [0:360°, 0:1, 0:1] to sRGB [0:255]
+	    
+	        C = V × S
+		H' = H / 60°
+		X = C(1 − |(H' mod 2) − 1|)
+		m = V − C
+		(r g b) = [(C X 0), (X C 0), (0 C X), (0 X C), (X 0 C), (C 0 X)]_⌊H'⌋
+		(R G B) = (r g b) + m
+	    
+	    HSL [0:360°, 0:1, 0:1] to sRGB [0:255]
+	    
+	        C = (1 − |2L − 1|) × S
+		H' = H / 60°
+		X = C(1 − |(H' mod 2) − 1|)
+		m = L − C / 2
+		(r g b) = [(C X 0), (X C 0), (0 C X), (0 X C), (X 0 C), (C 0 X)]_⌊H'⌋
+		(R G B) = (r g b) + m
+	    
+	    HCY [0:360°, 0:1, 0:1] to sRGB [0:255]
+	    
+		X = C(1 − |(H' mod 2) − 1|)
+		H' = H / 60°
+		(r g b) = [(C X 0), (X C 0), (0 C X), (0 X C), (X 0 C), (C 0 X)]_⌊H'⌋
+		m = Y − (.30⋅r + .59⋅g + .11⋅b)
+		(R G B) = (r g b) + m
+	    
+	    CIELAB to CMCCAT97
+	    
+	        ⎛L⎞   ⎛ 0,8951   0,2664  −0,1614⎞ ⎛R / 255⎞
+	        ⎜M⎟ = ⎜−0,7502   1,7135   0,0367⎟ ⎜G / 255⎟
+	        ⎝S⎠   ⎝ 0,0389  −0,0685   1,0296⎠ ⎝B / 255⎠
+	    
+	    CIELAB to CMCCAM97
+	    
+	        ⎛L⎞   ⎛ 0,8562   0,3372  −0,1934⎞ ⎛R / 255⎞
+	        ⎜M⎟ = ⎜−0,8360   1,8327   0,0033⎟ ⎜G / 255⎟
+	        ⎝S⎠   ⎝ 0,0357  −0,0469   1,0112⎠ ⎝B / 255⎠
+	    
+	    CIELAB to CMCCAM02
+	    
+	        ⎛L⎞   ⎛ 0,7328  0,4296  −0,1624⎞ ⎛R / 255⎞
+	        ⎜M⎟ = ⎜−0,7036  1,6975   0,0061⎟ ⎜G / 255⎟
+	        ⎝S⎠   ⎝ 0,0030  0,0136   0,9834⎠ ⎝B / 255⎠
+	    
+	    CIELAB to Eqienergy RLAB
+	    
+	        ⎛L⎞   ⎛ 0,38971  0,68898  −0,07868⎞ ⎛R / 255⎞
+	        ⎜M⎟ = ⎜−0,22981  1,18340   0,04641⎟ ⎜G / 255⎟
+	        ⎝S⎠   ⎝ 0,00000  0,00000   1,00000⎠ ⎝B / 255⎠
+	    
+	    CIELAB to D65 RLAB
+	    
+	        ⎛L⎞   ⎛ 0,4002  0,7076  −0,0808⎞ ⎛R / 255⎞
+	        ⎜M⎟ = ⎜−0,2263  1,1653   0,0457⎟ ⎜G / 255⎟
+	        ⎝S⎠   ⎝   0        0     0,9182⎠ ⎝B / 255⎠
+	    
+	    CIEXYZ to CIELUV
+	    
+	        u' = 4X / (X + 15Y + 3Z)
+		v' = 9Y / (X + 15Y + 3Z)
+		Y' = Y(white point)
+		u" = u'(white point)
+		v" = v'(white point)
+		
+	        L* = if   Y/Y' ≤ (6/29)³  then  (29/3)³⋅Y/Y'
+		     else                       116⋅∛(Y/Y') − 16
+		u* = 13 × L* × (u' − u")
+		v* = 13 × L* × (v' − v")
+	    
+	    CIELUV to CIE LCh
+	    
+	        C = √(u² + v²)
+		h = artan2(u / v)
+	    
+	    CIELUV to CIEUVW
+	    
+		u' = u(white point)
+		v' = v(white point)
+		
+		W = 25⋅∛(Y) − 13
+		U = 13⋅W(u - u')
+		V = 13⋅W(v - v')
+	    
+	    CIELUV to CIE 1960 UCS
+	    
+	        v' = 3v / 2
  */
 
 
@@ -130,14 +217,14 @@ public class Colour //TRY TO KEEP this class optimised for speed
     private static final int[][] elementary = {{205, 101, 108}, {164, 110, 176}, { 36, 149, 190}, {  0, 169, 159},
                                                { 50, 166, 121}, {156, 173,  81}, {204, 173,  71}, {218, 128,  77}};
     
-    ///**
-    // * The intensity of some empirical pure grey colours
-    // */
+    /**
+     * The intensity of some empirical pure grey colours
+     */
     //private static final double[] greysW = { 0, .10, .20, .30, .40, .50, .60, .70, .80, .90, .95, .97, 1 };
      
-    ///**
-    // * The standard RGB value of the empirical pure grey colours
-    //*/
+    /**
+     * The standard RGB value of the empirical pure grey colours
+    */
     //private static final double[] greysV = { 0, 25, 65.72, 94.38, 116.66, 136.1, 155.2, 175.68, 198.72, 225, 237, 243, 255 };
     
     
@@ -201,14 +288,14 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static double[] lastGrey = null;
     
-    ///**
-    // * Linear RGB value coefficients for pure greys
-    // */
+    /**
+     * Linear RGB value coefficients for pure greys
+     */
     //private static double[] greyK = null;
     
-    ///**
-    // * Pure grey coefficients for linear RGB values
-    // */
+    /**
+     * Pure grey coefficients for linear RGB values
+     */
     //private static double[] greyI = null;
     
     
@@ -396,7 +483,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
 	return rc;
 	/**/
 	
-	return Math.pow(perception, 1. / 2.);
+	return Math.pow(perception,  2.);
     }
     
     /**
@@ -434,7 +521,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
 	return rc;
 	/**/
 	
-	return Math.pow(intensity, 2.);
+	return Math.pow(intensity, 1. / 2.);
     }
     
     
@@ -550,9 +637,9 @@ public class Colour //TRY TO KEEP this class optimised for speed
     private static double[] toLinear(final int r, final int b, final int g)
     {
         return new double[] {
-	            Math.pow(r / 255., 0.439764585),
-		    Math.pow(g / 255., 0.439764585),
-		    Math.pow(b / 255., 0.439764585)
+	            r == 0. ? 0. : Math.pow(r / 255., 2.273943909),
+		    g == 0. ? 0. : Math.pow(g / 255., 2.273943909),
+		    b == 0. ? 0. : Math.pow(b / 255., 2.273943909)
 	        };
     }
     
@@ -567,9 +654,9 @@ public class Colour //TRY TO KEEP this class optimised for speed
     private static double[] toLinear(final double r, final double b, final double g)
     {
         return new double[] {
-	            Math.pow(r / 255., 0.439764585),
-		    Math.pow(g / 255., 0.439764585),
-		    Math.pow(b / 255., 0.439764585)
+	            r == 0. ? 0. : Math.pow(r / 255., 2.273943909),
+		    g == 0. ? 0. : Math.pow(g / 255., 2.273943909),
+		    b == 0. ? 0. : Math.pow(b / 255., 2.273943909)
 	        };
     }
     
@@ -581,7 +668,9 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static double toLinear(final double i)
     {
-        return Math.pow(i / 255., 0.439764585);
+	if (i == 0.)
+	    return 0.;
+        return Math.pow(i / 255., 2.273943909);
     }
     
     /**
@@ -595,9 +684,9 @@ public class Colour //TRY TO KEEP this class optimised for speed
     private static int[] toStandard(final double r, final double b, final double g)
     {
 	return new int[] {
-	            (int)(0.5 + 255. * Math.pow(r, 2.273943909)),
-		    (int)(0.5 + 255. * Math.pow(g, 2.273943909)),
-		    (int)(0.5 + 255. * Math.pow(b, 2.273943909))
+	            (int)(0.5 + 255. * Math.pow(r, 0.439764585)),
+		    (int)(0.5 + 255. * Math.pow(g, 0.439764585)),
+		    (int)(0.5 + 255. * Math.pow(b, 0.439764585))
 		};
     }
     
@@ -609,7 +698,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      */
     private static int toStandard(final double i)
     {
-	return (int)(0.5 + 255. * Math.pow(i, 2.273943909));
+	return (int)(0.5 + 255. * Math.pow(i, 0.439764585));
     }
     
     /**
@@ -686,6 +775,16 @@ public class Colour //TRY TO KEEP this class optimised for speed
     public double getHue()
     {
 	return this.hue;
+    }
+    
+    /**
+     * Gets whether the colour is neutral, that is fully grey.
+     * 
+     * @return  Whether colour is neutral
+     */
+    public boolean isNeutral()
+    {
+	return this.saturation == 0.;
     }
     
     /**

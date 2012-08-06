@@ -125,7 +125,7 @@ public class Program extends JFrame
     
     
     
-    private static BufferedImage[] imgs = new BufferedImage[1 + 200];
+    private static BufferedImage[] imgs = new BufferedImage[1 + 6];
     
     static int lum = 0;
     
