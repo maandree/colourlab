@@ -187,6 +187,37 @@
 	    CIELUV to CIE 1960 UCS
 	    
 	        v' = 3v / 2
+	    
+	    CIEXYZ to Adobe RGB [0:255]
+	    
+	        ⎛R⎞   ⎛ 2.04159  −0,56501  −0,34473⎞ ⎛X⎞
+	        ⎜G⎟ = ⎜−0,96924   1,87597   0,04156⎟ ⎜Y⎟ ↑ (1 / 2.19921872) ⋅ 255
+	        ⎝B⎠   ⎝ 0,01344  −0,11836   1,01517⎠ ⎝Z⎠
+	    
+	    Theoretical CMYK [0:100] to sRGB [0:255]
+	    
+	        R = ((1 − K/100)×(1 − C/100))↑0.439764585×255
+		G = ((1 − K/100)×(1 − M/100))↑0.439764585×255
+		B = ((1 − K/100)×(1 − Y/100))↑0.439764585×255
+            
+	    ROMM RGB          D50  0.7347 0.2653  0.1596 0.8404  0.0366 0.0001 ↑ (1 / 2.19921872) ⋅ 255
+	    Apple RGB         D65  0.625  0.34    0.28   0.595   0.155  0.07   ↑ (1 / 2.19921872) ⋅ 255
+	    Adobe Wide Gamut  D50  0.735  0.265   0.115  0.826   0.157  0.018  ↑ (1 / 2.19921872) ⋅ 255
+	    NTSC 1953 RGB     C    0.67   0.33    0.21   0.71    0.14   0.08   ↑ (1 / 2.19921872) ⋅ 255
+	    NTSC 1987 RGB     C    0.63   0.34    0.31   0.595   0.155  0.07   ↑ (1 / 2.19921872) ⋅ 255
+            EBU RGB           D65  0.64   0.33    0.29   0.60    0.15   0.06   ↑ (1 / 2.19921872) ⋅ 255
+	    ITU-R BT.709      D65  0.64   0.33    0.30   0.60    0.15   0.06   ↑ (1 / 2.19921872) ⋅ 255
+	    
+	    http://en.wikipedia.org/wiki/Munsell_color_system
+	    http://en.wikipedia.org/wiki/Coloroid
+	    http://en.wikipedia.org/wiki/OSA-UCS
+	    http://en.wikipedia.org/wiki/RAL_(color_space_system)
+	    http://en.wikipedia.org/wiki/Natural_Color_System
+	    http://en.wikipedia.org/wiki/Pantone
+	    
+	    CMYK
+	    
+	    from sRGB
  */
 
 
@@ -452,7 +483,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * @param   perception  The linear perception
      * @return              The linear intensity
      */
-    private static double calculateIntensity(final double perception)
+    public static double calculateIntensity(final double perception)
     {
 	/** /
 	int n = greysW.length;
@@ -492,7 +523,7 @@ public class Colour //TRY TO KEEP this class optimised for speed
      * @param   intensity  The linear intensity
      * @return             The linear perception
      */
-    private static double calculatePerception(final double intensity)
+    public static double calculatePerception(final double intensity)
     {
         /** /
 	int n = greysV.length;
@@ -873,6 +904,102 @@ public class Colour //TRY TO KEEP this class optimised for speed
 	if ((200. <= this.hue) && (this.hue < 300.))  return (this.hue - 200.) / 100.;
 	if ((300. <= this.hue) && (this.hue < 400.))  return (400. - this.hue) / 100.;
 	return 0.;
+    }
+    
+    
+    /**
+     * Gets the distance between the colour and another colour
+     * 
+     * @param   other  The other colour
+     * @return         The distance between the colours [0, √5]
+     */
+    public double getDistance(final Colour other)
+    {
+	return Math.sqrt(this.getDistance2(other));
+    }
+    
+    /**
+     * Gets the distance between the colour and another colour
+     * 
+     * @param   lum  The other colour's luminosity
+     * @param   sat  The other colour's saturation
+     * @param   hue  The other colour's hue
+     * @return       The distance between the colours [0, √5]
+     */
+    public double getDistance(final double lum, final double sat, final double hue)
+    {
+	return Math.sqrt(this.getDistance2(lum, sat, hue));
+    }
+    
+    /**
+     * Gets the distance between two colours
+     * 
+     * @param   lum1  The colour's luminosity
+     * @param   sat1  The colour's saturation
+     * @param   hue1  The colour's hue
+     * @param   lum2  The other colour's luminosity
+     * @param   sat2  The other colour's saturation
+     * @param   hue2  The other colour's hue
+     * @return        The distance between the colours [0, √5]
+     */
+    public static double getDistance(final double lum1, final double sat1, final double hue1, final double lum2, final double sat2, final double hue2)
+    {
+	return Math.sqrt(getDistance2(lum1, sat1, hue1, lum2, sat2, hue2));
+    }
+    
+    /**
+     * Gets the distance, to the power of two, between the colour and another colour
+     * 
+     * @param   other  The other colour
+     * @return         The distance between the colours [0, 5]
+     */
+    public double getDistance2(final Colour other)
+    {
+	return this.getDistance2(other.getLuminosity(), other.getSaturation(), other.getHue());
+    }
+    
+    /**
+     * Gets the distance, to the power of two, between the colour and another colour
+     * 
+     * @param   lum  The other colour's luminosity
+     * @param   sat  The other colour's saturation
+     * @param   hue  The other colour's hue
+     * @return       The distance between the colours [0, 5]
+     */
+    public double getDistance2(final double lum, final double sat, final double hue)
+    {
+	return getDistance2(this.getLuminosity(), this.getSaturation(), this.getHue(), lum, sat, hue);
+    }
+    
+    /**
+     * Gets the distance, to the power of two, between two colours
+     * 
+     * @param   lum1  The colour's luminosity
+     * @param   sat1  The colour's saturation
+     * @param   hue1  The colour's hue
+     * @param   lum2  The other colour's luminosity
+     * @param   sat2  The other colour's saturation
+     * @param   hue2  The other colour's hue
+     * @return        The distance between the colours [0, 5]
+     */
+    public static double getDistance2(final double lum1, final double sat1, final double hue1, final double lum2, final double sat2, final double hue2)
+    {
+	final double h1 = toUniformHue(hue1);
+	final double h2 = toUniformHue(hue2);
+	
+	double x = Math.cos(h1 * Math.PI / 400.) * sat1;
+	double y = lum1;
+	double z = Math.sin(h1 * Math.PI / 400.) * sat1;
+	
+	double x2 = Math.cos(h2 * Math.PI / 400.) * sat2;
+	double y2 = lum2;
+	double z2 = Math.sin(h2 * Math.PI / 400.) * sat2;
+	
+	x -= x2;
+	y -= y2;
+	z -= z2;
+	
+	return x * x + y * y + z * z;
     }
     
 }
