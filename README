@@ -1,1 +1,23 @@
-Perceptual colour model
+Free mathemetical perceptual colour model
+
+
+=== Important notes on monitor colour callibration for contributors. ===
+
+To my knowledge their is not way, for any graphical systems of any kind,
+to correct the colour courves for flat screens. Anypony that have tried
+to correct the colour courves for their flat screens will notice that is
+seems impossible, I therefore believe in the claim that they have logistic
+curves (S-curves); and all software corrects gamma curves which CRT
+monitores used. Therefore mathematical modelling contibutors must use
+gamma correct CRT monitors.
+
+sRGB(188,188,188) is the encoding of 50 % grey intensity (intensity is
+not percepted!) so a 50–50 blend of sRGB(0, 0, 0) and sRGB(255, 255, 255)
+should look like sRGB(188,188,188) if the individual pixels cannot be
+discerned. This is also true for primary colours, for example sRGB(0, 0, 0)
++ sRGB(255, 0, 0) ~ sRGB(188, 0, 0).
+Further sRGB(255, 255, 255) is definied as white (CIE white point D65),
+fade from blended sRGB(0, 0, 0) and sRGB(255, 255, 255) to pure
+sRGB(188, 188, 188) should look like a flat grey if the individual pixels
+cannot be discerned.
+
