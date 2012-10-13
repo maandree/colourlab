@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=640" />
+
+    <link rel="stylesheet" href="stylesheets/core.css" media="screen"/>
+    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-device-width:640px)"/>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+
+    <script type="text/javascript" src="javascripts/modernizr.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/headsmart.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $('#main_content').headsmart()
+      })
+    </script>
+    <title>colourlab by maandree</title>
+  </head>
+
+  <body>
+    <a id="forkme_banner" href="https://github.com/maandree/colourlab">View on GitHub</a>
+    <div class="shell">
+
+      <header>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <h1>colourlab</h1>
+            <h2>An effort to create a free mathematical perceptual colour model and other colour tools</h2>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+      </header>
+
+      <section id="downloads">
+        <span class="inner">
+          <a href="https://github.com/maandree/colourlab/zipball/master" class="zip"><em>download</em> .ZIP</a><a href="https://github.com/maandree/colourlab/tarball/master" class="tgz"><em>download</em> .TGZ</a>
+        </span>
+      </section>
+
+
+      <span class="banner-fix"></span>
+
+
+      <section id="main_content">
+        <p>Free mathemetical perceptual colour model</p>
+
+<p>=== Important notes on monitor colour callibration for contributors. ===</p>
+
+<p>To my knowledge their is not way, for any graphical systems of any kind,
+to correct the colour courves for flat screens. Anypony that have tried
+to correct the colour courves for their flat screens will notice that is
+seems impossible, I therefore believe in the claim that they have logistic
+curves (S-curves); and all software corrects gamma curves which CRT
+monitores used. Therefore mathematical modelling contibutors must use
+gamma correct CRT monitors.</p>
+
+<p>sRGB(188,188,188) is the encoding of 50 % grey intensity (intensity is
+not percepted!) so a 50–50 blend of sRGB(0, 0, 0) and sRGB(255, 255, 255)
+should look like sRGB(188,188,188) if the individual pixels cannot be
+discerned. This is also true for primary colours, for example sRGB(0, 0, 0)</p>
+
+<ul>
+<li>sRGB(255, 0, 0) ~ sRGB(188, 0, 0).
+Further sRGB(255, 255, 255) is definied as white (CIE white point D65),
+fade from blended sRGB(0, 0, 0) and sRGB(255, 255, 255) to pure
+sRGB(188, 188, 188) should look like a flat grey if the individual pixels
+cannot be discerned.</li>
+</ul>
+      </section>
+
+      <footer>
+        <span class="ribbon-outer">
+          <span class="ribbon-inner">
+            <p>this project by <a href="https://github.com/maandree">maandree</a> can be found on <a href="https://github.com/maandree/colourlab">GitHub</a></p>
+          </span>
+          <span class="left-tail"></span>
+          <span class="right-tail"></span>
+        </span>
+        <p>Generated with <a href="http://pages.github.com">GitHub Pages</a> using Merlot</p>
+        <span class="octocat"></span>
+      </footer>
+
+    </div>
+
+    
+  </body>
+</html>
